@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<title>Login</title>
+	<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  	<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300&display=swap" rel="stylesheet">
+	{%load static%}
+	<link rel="stylesheet" type="text/css" href="{% static 'css/login.css' %}">
+	<script src="static/js/jquery-3.5.1.min.js"></script>
+  	<script src="static/js/login.js"></script>
+</head>
+<body>
+	<form action="/" class="form">
+  		<img src="./img/logo.png" alt="" class="form__image" aria-hidden="true">
+  		<h2 class="form__title">Доступ к системе прокторинга НИЯУ МИФИ</h2>
+ 		<div class="form__label">
+   			<span class="visually-hidden">Логин</span>
+    		<input type="text" class="form__input form__input--user" placeholder="ФИО">
+  		</div>
+  		<label class="form__label">
+   			<span class="visually-hidden">Пароль</span>
+    		<input type="password" class="form__input form__input--password" placeholder="Пароль">
+    		<button class="form__label-btn pass-btn" aria-label="Показать пароль"></button>
+  		</label>
+  		<button class="form__btn">Вход</button> <!--
+  		<button class="form__account">Уже зарегестрированы? Войти!</button> -->
+	</form>
+</body>
+</html>

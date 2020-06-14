@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>ProctorMEPhI</title>
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,700" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Raleway:400,700" rel="stylesheet">
+  <link href="https://use.fontawesome.com/releases/v5.0.6/css/all.css" rel="stylesheet">
+  {%load static%}
+  <link rel="stylesheet" type="text/css" href="{% static 'css/checking-camera.css'%}">
+  <script src="../static/js/jquery-3.5.1.min.js"></script>
+  <script src="../static/js/script.js"></script>
+</head>
+<body>
+  <!-- <div class="overlay"></div> -->
+  <header class="header">
+    <div class="container">
+      <div class="header_top-block fixed">
+        <div class="container">
+        <div class="row">
+          <div class="col-4">
+            <a href="/" class="logo">
+              <h3>ProctorMEPhI</h3>
+            </a>
+          </div>
+          <div class="col-8">
+            <nav class="header-menu">
+              <ul>
+                <li><a href="#">Поддержка</a></li>
+                <li><a href="/signin">Выход</a></li>
+              </ul>
+            </nav>
+          </div>
+        </div>
+        </div>
+      </div>
+      <div class="header_content-block">
+        <div>
+        <img src="../static/mainApp/image/webcam.png" alt="webcam">
+        </div>
+        <h1>{{res}}</h1>
+        <div class="btn-area">
+            {%if res == "Камера работает"%}
+                <a href="/conference" class="btn">Продолжить</a>
+            {%else%}
+                <a href="/connecting" class="btn">Попробовать снова</a>
+            {%endif%}
+        </div>
+      </div>
+    </div>
+  </header>
+  <footer class="footer">
+    <p>© 2020 Национальный исследовательский ядерный университет «МИФИ»</p>
+    <p>Создано студентами 22-ой кафедры НИЯУ "МИФИ"</p>
+  </footer>
+</body>
+</html>
