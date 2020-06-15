@@ -1,0 +1,17 @@
+{% extends "mainApp/wrapper.html" %}
+
+{% block content %}
+<div class="jumbotron">
+    <div class="container">
+        <h1 class="display-3">Instruction page</h1>
+        <p>
+        <a href="/userinterface" class="btn btn-success btn-lg mt-5">Вернуться в профиль</a>
+        </p>
+        <p class="mt-5">
+        Перед началом экзамена необходимо пройти проверку микрофона, веб-камеры и качества интернет соединения. Во время экзамена запрещается переговариваться с кем-либо, вставать с места и наличие других лиц во время сдачи экзамена.
+        </p>
+    </div>
+</div>
+
+{% include "mainApp/includes/some_html.html" %}
+{% endblock %}
