@@ -14,6 +14,7 @@
   <script src="https://rtcmulticonnection.herokuapp.com/dist/RTCMultiConnection.min.js"></script>
   <script src="https://rtcmulticonnection.herokuapp.com/socket.io/socket.io.js"></script>
   <script src='https://meet.jit.si/external_api.js'></script>
+  <script src="https://meet.jit.si/libs/lib-jitsi-meet.min.js"></script>
 </head>
 <body>
   <!-- <div class="overlay"></div> -->
@@ -42,55 +43,45 @@
         <input id="conference_name" size="30" maxlength="30" placeholder='Введите название комнаты'>
         <button class="btn" id="join_room" onclick="JoinRoom()">Присоединиться</button>
     </div>
-      <button class="btn" id="on_off_micro" onclick="OnOffMicro()">Вкл./Выкл. микрофон</button>
-      <button class="btn" id="on_off_video" onclick="OnOffVideo()">Вкл./Выкл. камеру</button>
-      <button class="btn" id="on_off_screen_share" onclick="ShareScreen()">Вкл./Выкл. показ экрана</button>
-      <button class="btn" id="exit_from_room" onclick="ExitFromRoom()">Покинуть комнату</button>
+      <button class="btn" id="on_off_micro" onclick="">Вкл./Выкл. микрофон</button>
+      <button class="btn" id="on_off_video" onclick="">Вкл./Выкл. камеру</button>
+      <button class="btn" id="on_off_screen_share" onclick="">Вкл./Выкл. показ экрана</button>
+      <button class="btn" id="exit_from_room" onclick="">Покинуть комнату</button>
     <script>
       function JoinRoom(){
-        var domain = 'meet.jit.si';
         var options = {
-        roomName: document.getElementById("conference_name").value,
-        width: 1100,
-        height: 500,
-        parentNode: document.querySelector('#meet'),
-        userInfo: {
-        email: 'student@example.com',
-        displayName: 'Student'
-        },
-        configOverwrite: {startWithVideoMuted: true},
-        interfaceConfigOverwrite: { SHOW_JITSI_WATERMARK: false, 
-                                    JITSI_WATERMARK_LINK: '', 
-                                    SHOW_WATERMARK_FOR_GUESTS: false, 
-                                    SHOW_DEEP_LINKING_IMAGE: false,
-                                    DISPLAY_WELCOME_PAGE_CONTENT: false,
-                                    APP_NAME: 'MEPhI proctoring',
-                                    NATIVE_APP_NAME: 'MEPhI proctoring',
-                                    PROVIDER_NAME: 'MEPhI',
-                                    //INVITATION_POWERED_BY: false,
-                                    //SHOW_INVITE_MORE_HEADER: false,
-                                    TOOLBAR_BUTTONS: [
-                                    'raisehand', 'chat', 'fullscreen'
-                                     ]}
+          useIPv6: false,
+          desktopSharingChromeExtId: '',
+          desktopSharingChromeDisabled: false,
+          desktopSharingChromeSources: ['screen', 'window'],
+          desktopSharingFirefoxDisabled: false,
+          disableAudioLevels: false,
+          disableSimulcast: false
+
         };
-        api = new JitsiMeetExternalAPI(domain, options);
+        JitsiMeetJS.init(options);
+        var connection = new JitsiMeetJS.JitsiConnection();
+        connection.addEventListener(JitsiMeetJS.events.connection.CONNECTION_ESTABLISHED, onConnectionSuccess);
+        connection.addEventListener(JitsiMeetJS.events.connection.CONNECTION_FAILED, onConnectionFailed);
+        connection.addEventListener(JitsiMeetJS.events.connection.CONNECTION_DISCONNECTED, disconnect);
+
+        connection.connect();
+        var confOptions = {
+        
+        };
+        room = connection.initJitsiConference("conference1", confOptions);
+        room.on(JitsiMeetJS.events.conference.TRACK_ADDED, onRemoteTrack);
+        room.on(JitsiMeetJS.events.conference.CONFERENCE_JOINED, onConferenceJoined);
+        JitsiMeetJS.createLocalTracks().then(onLocalTracks);
+        room.join();
+        /*var options = {
+          
+        };*/
+        
         document.getElementById("join_room").style.visibility = "hidden";
         document.getElementById("conference_name").style.visibility = "hidden";
         };
-        function OnOffMicro(){
-          api.executeCommand('toggleAudio');
-        };
-        function OnOffVideo(){
-        api.executeCommand('toggleVideo');
-        };
-        function ExitFromRoom(){
-          api.dispose();
-          document.getElementById("conference_name").style.visibility = "visible";
-          document.getElementById("join_room").style.visibility = "visible";
-        };
-        function ShareScreen(){
-          api.executeCommand('toggleShareScreen');
-        };
+        
     </script>
     <div id="meet">
     </div>

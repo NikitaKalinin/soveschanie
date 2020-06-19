@@ -39,43 +39,82 @@
         </div>
       </div>
       <div class="header_content-block">
-        <input id="conference_name" size="30" maxlength="30" placeholder='Введите название комнаты'>
-        <button class="btn" id="join_room" onclick="JoinRoom()">Присоединиться</button>
+      {% if rooms.count > 0 %}
+        <h2>Список комнат</h2>
+        <table>
+            <thead><th>Преподаватель</th><th>Название экзамена</th><th></th></thead>
+            {% for room in rooms %}
+            <tr>
+                <td>{{ room.proctor_id }}</td>
+                <td>{{ room.description }}</td>
+                <td><button id="join_room" onclick="JoinRoom('{{room.name}}')">Присоединиться</button></td>
+            </tr>
+            {% endfor %}
+        </table>
+      {% else %}
+        <h2>Список комнат пуст</h2>
+      {% endif %}
     </div>
+    <script>
+       $(document).ready(function(){
+          HiddenVideoButton();
+        });
+        function HiddenVideoButton() {
+          document.getElementById("on_off_micro").style.visibility = "hidden";
+          document.getElementById("on_off_video").style.visibility = "hidden";
+          document.getElementById("on_off_screen_share").style.visibility = "hidden";
+          document.getElementById("exit_from_room").style.visibility = "hidden";
+        };
+        function VisibleVideoButton(){
+          document.getElementById("on_off_micro").style.visibility = "visible";
+          document.getElementById("on_off_video").style.visibility = "visible";
+          document.getElementById("on_off_screen_share").style.visibility = "visible";
+          document.getElementById("exit_from_room").style.visibility = "visible";
+        };
+    </script>
       <button class="btn" id="on_off_micro" onclick="OnOffMicro()">Вкл./Выкл. микрофон</button>
       <button class="btn" id="on_off_video" onclick="OnOffVideo()">Вкл./Выкл. камеру</button>
       <button class="btn" id="on_off_screen_share" onclick="ShareScreen()">Вкл./Выкл. показ экрана</button>
       <button class="btn" id="exit_from_room" onclick="ExitFromRoom()">Покинуть комнату</button>
     <script>
-      function JoinRoom(){
+      function JoinRoom(room_name){
         var domain = 'meet.jit.si';
         var options = {
-        roomName: document.getElementById("conference_name").value,
-        width: 1100,
-        height: 500,
-        parentNode: document.querySelector('#meet'),
-        userInfo: {
-        email: 'student@example.com',
-        displayName: 'Student'
-        },
-        configOverwrite: {startWithVideoMuted: true},
-        interfaceConfigOverwrite: { SHOW_JITSI_WATERMARK: false, 
-                                    JITSI_WATERMARK_LINK: '', 
-                                    SHOW_WATERMARK_FOR_GUESTS: false, 
-                                    SHOW_DEEP_LINKING_IMAGE: false,
-                                    DISPLAY_WELCOME_PAGE_CONTENT: false,
-                                    APP_NAME: 'MEPhI proctoring',
-                                    NATIVE_APP_NAME: 'MEPhI proctoring',
-                                    PROVIDER_NAME: 'MEPhI',
-                                    //INVITATION_POWERED_BY: false,
-                                    //SHOW_INVITE_MORE_HEADER: false,
-                                    TOOLBAR_BUTTONS: [
-                                    'raisehand', 'chat', 'fullscreen'
-                                     ]}
+          roomName: room_name,
+          width: 1100,
+          height: 500,
+          parentNode: document.querySelector('#meet'),
+          userInfo: {
+          email: 'student@example.com',
+          displayName: 'Student'
+          },
+          configOverwrite: {startWithVideoMuted: true,
+                            p2p: {enabled: false},
+                            remoteVideoMenu: {
+                                disableKick: true
+                            },
+                            disableRemoteMute: true
+          },
+          interfaceConfigOverwrite: { SHOW_JITSI_WATERMARK: false, 
+                                      JITSI_WATERMARK_LINK: '', 
+                                      SHOW_WATERMARK_FOR_GUESTS: false, 
+                                      SHOW_DEEP_LINKING_IMAGE: false,
+                                      DISPLAY_WELCOME_PAGE_CONTENT: false,
+                                      APP_NAME: 'MEPhI proctoring',
+                                      NATIVE_APP_NAME: 'MEPhI proctoring',
+                                      PROVIDER_NAME: 'MEPhI',
+                                      HIDE_INVITE_MORE_HEADER: true, //Спратать кнопку инвайта, когда один в комнате 
+                                      HIDE_KICK_BUTTON_FOR_GUESTS: true, //Спратать кнопку кика для гостей
+                                      TOOLBAR_BUTTONS: [
+                                      'raisehand', 'chat', 'fullscreen'
+                                      ],
+                                      SHOW_CHROME_EXTENSION_BANNER: false
+          }
         };
         api = new JitsiMeetExternalAPI(domain, options);
-        document.getElementById("join_room").style.visibility = "hidden";
-        document.getElementById("conference_name").style.visibility = "hidden";
+        //document.getElementById("join_room").style.visibility = "hidden";
+        VisibleVideoButton();
+        HideArrayOfJoinButton();
         };
         function OnOffMicro(){
           api.executeCommand('toggleAudio');
@@ -85,11 +124,25 @@
         };
         function ExitFromRoom(){
           api.dispose();
-          document.getElementById("conference_name").style.visibility = "visible";
           document.getElementById("join_room").style.visibility = "visible";
+          HiddenVideoButton();
+          VisibleArrayOfJoinButton();
         };
         function ShareScreen(){
           api.executeCommand('toggleShareScreen');
+        };
+
+        function HideArrayOfJoinButton(btn){
+          var Join_button = document.querySelectorAll('#join_room');
+          Join_button.forEach(function(btn){
+            btn.style.visibility = "hidden";
+          });
+        };
+        function VisibleArrayOfJoinButton(btn){
+          var Join_button = document.querySelectorAll('#join_room');
+          Join_button.forEach(function(btn){
+            btn.style.visibility = "visible";
+          });
         };
     </script>
     <div id="meet">

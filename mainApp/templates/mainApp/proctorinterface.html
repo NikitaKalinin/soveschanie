@@ -47,43 +47,127 @@
           return Math.random().toString(36).substr(2, 9);
         };
       </script>
-        <button class="btn" id="join_room" onclick="JoinRoom()">Создать</button>
-        <div id="conference_name"></div>
+        <form>{% csrf_token %}
+        <div>
+        <input type="text" id="proctor_id" name="ProctorID">
+        </div>
+        <input type="text" id="conference_name" name="ExamName" placeholder='Введите название экзамена'>
+        <button class="btn" id="create_room">Создать</button>
+        <div>
+        <input type="text" id="room_name" name="RoomName">
+        </div>
+        </form>
+      <script>
+      function Ajax_Exit_Room (){ //Удалить название комнаты при нажатии на кнопку "Покинуть комнату"
+              $.ajax({
+                  type: 'POST',
+                  url: "delete_room/",
+                  data: {
+                      proctor_id: $('#proctor_id').val(),
+                      description: $('#conference_name').val(),
+                      name: $('#room_name').val(),
+                      csrfmiddlewaretoken: $("input[name=csrfmiddlewaretoken]").val()
+                  },
+                  success: function () {
+                    ExitFromRoom(); //Закрываем комнату
+                    ConferenceName = CreateConferenceName(); //Генерим новое название комнаты(чтобы проктор не создал новую комнату с тем же названием)
+                    document.getElementById("room_name").value = ConferenceName;
+                  }
+              });
+      };
+      window.onbeforeunload = function() { //Удалить название комнаты при закритии или обновлении страницы
+        Ajax_Exit_Room();
+      }
+      window.onload = function () {
+        $('#create_room').on('click', function (){
+              //e.preventDefault();
+              $.ajax({
+                  type: 'POST',
+                  url: 'create_room/',
+                  data: {
+                      proctor_id: $('#proctor_id').val(),
+                      description: $('#conference_name').val(),
+                      name: $('#room_name').val(),
+                      csrfmiddlewaretoken: $("input[name=csrfmiddlewaretoken]").val()
+                  },
+                  success: function () {
+                      JoinRoom();
+                  }
+              });
+          });
+      };
+      </script>
+
+
     </div>
       <button class="btn" id="on_off_micro" onclick="OnOffMicro()">Вкл./Выкл. микрофон</button>
       <button class="btn" id="on_off_video" onclick="OnOffVideo()">Вкл./Выкл. камеру</button>
       <button class="btn" id="on_off_screen_share" onclick="ShareScreen()">Вкл./Выкл. показ экрана</button>
-      <button class="btn" id="exit_from_room" onclick="ExitFromRoom()">Покинуть комнату</button>
+      <button class="btn" id="exit_from_room" onclick="Ajax_Exit_Room()">Покинуть комнату</button>
     <script>
+      $('form').submit(function () {
+          return false;
+      });
+      $(document).ready(function(){
+            HiddenVideoButton();
+            document.getElementById("room_name").style.visibility = "hidden";
+            document.getElementById("proctor_id").style.visibility = "hidden";
+            ConferenceName = CreateConferenceName();
+            document.getElementById("room_name").value = ConferenceName;
+            document.getElementById("proctor_id").value = 'proctor';
+          });
+          function HiddenVideoButton() {
+            document.getElementById("on_off_micro").style.visibility = "hidden";
+            document.getElementById("on_off_video").style.visibility = "hidden";
+            document.getElementById("on_off_screen_share").style.visibility = "hidden";
+            document.getElementById("exit_from_room").style.visibility = "hidden";
+          };
+          function VisibleVideoButton(){
+            document.getElementById("on_off_micro").style.visibility = "visible";
+            document.getElementById("on_off_video").style.visibility = "visible";
+            document.getElementById("on_off_screen_share").style.visibility = "visible";
+            document.getElementById("exit_from_room").style.visibility = "visible";
+          };
       function JoinRoom(){
-        ConferenceName = CreateConferenceName();
         var domain = 'meet.jit.si';
         var options = {
-        roomName: ConferenceName,
-        width: 1100,
-        height: 500,
-        parentNode: document.querySelector('#meet'),
-        userInfo: {
-        email: 'proctor@example.com',
-        displayName: 'Proctor'
-        },
-        configOverwrite: {startWithVideoMuted: true},
-        interfaceConfigOverwrite: { SHOW_JITSI_WATERMARK: false, 
-                                    JITSI_WATERMARK_LINK: '', 
-                                    SHOW_WATERMARK_FOR_GUESTS: false, 
-                                    SHOW_DEEP_LINKING_IMAGE: false,
-                                    DISPLAY_WELCOME_PAGE_CONTENT: false,
-                                    APP_NAME: 'MEPhI proctoring',
-                                    NATIVE_APP_NAME: 'MEPhI proctoring',
-                                    PROVIDER_NAME: 'MEPhI',
-                                    //SHOW_INVITE_MORE_HEADER: false,
-                                    TOOLBAR_BUTTONS: [
-                                    'raisehand', 'chat', 'fullscreen'
-                                     ]}
+          roomName: document.getElementById("room_name").value,
+          width: 1100,
+          height: 500,
+          parentNode: document.querySelector('#meet'),
+          userInfo: {
+          email: 'proctor@example.com',
+          displayName: 'Proctor'
+          },
+          configOverwrite: {startWithVideoMuted: true,
+                            p2p: {enabled: false}
+          },
+          interfaceConfigOverwrite: { SHOW_JITSI_WATERMARK: false, 
+                                      JITSI_WATERMARK_LINK: '', 
+                                      SHOW_WATERMARK_FOR_GUESTS: false, 
+                                      SHOW_DEEP_LINKING_IMAGE: false,
+                                      DISPLAY_WELCOME_PAGE_CONTENT: false,
+
+
+                                      GENERATE_ROOMNAMES_ON_WELCOME_PAGE: false,
+                                      DEFAULT_REMOTE_DISPLAY_NAME: 'User',
+
+                                      APP_NAME: 'Proctoring',
+                                      NATIVE_APP_NAME: 'Proctoring',
+                                      PROVIDER_NAME: 'Proctoring',
+                                      HIDE_INVITE_MORE_HEADER: true, //Спратать кнопку инвайта, когда один в комнате
+                                      HIDE_KICK_BUTTON_FOR_GUESTS: true, //Спратать кнопку кика для гостей
+                                      TOOLBAR_BUTTONS: [
+                                      'raisehand', 'chat', 'fullscreen'
+                                      ],
+                                      SHOW_CHROME_EXTENSION_BANNER: false
+          }
         };
         api = new JitsiMeetExternalAPI(domain, options);
-        document.getElementById("join_room").style.visibility = "hidden";
+        document.getElementById("create_room").style.visibility = "hidden";
+        document.getElementById("conference_name").style.visibility = "hidden";
         document.getElementById("conference_name").innerText = 'Название комнаты: ' + ConferenceName;
+        VisibleVideoButton();
         };
         function OnOffMicro(){
           api.executeCommand('toggleAudio');
@@ -93,7 +177,9 @@
         };
         function ExitFromRoom(){
           api.dispose();
-          document.getElementById("join_room").style.visibility = "visible";
+          document.getElementById("create_room").style.visibility = "visible";
+          document.getElementById("conference_name").style.visibility = "visible";
+          HiddenVideoButton();
         };
         function ShareScreen(){
           api.executeCommand('toggleShareScreen');
